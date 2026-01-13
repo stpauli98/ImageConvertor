@@ -3,6 +3,27 @@
 import { ImageFile } from '../model/types';
 import { formatBytes, calculateSavings } from '@/shared/lib/formatBytes';
 import { truncateFileName } from '@/shared/lib/string';
+import { Tooltip } from '@/shared/ui/Tooltip';
+
+// Map technical errors to user-friendly messages
+const friendlyErrorMessages: Record<string, string> = {
+  'Failed to fetch': 'Greška pri učitavanju. Provjerite internet vezu.',
+  'Canvas error': 'Slika je prevelika za procesiranje u browseru.',
+  'NetworkError': 'Problem s mrežom. Pokušajte ponovo.',
+  'Out of memory': 'Nedovoljno memorije. Pokušajte s manjom slikom.',
+  'Invalid image': 'Neispravan format slike.',
+  'Timeout': 'Procesiranje je predugo trajalo. Pokušajte ponovo.',
+  'AbortError': 'Procesiranje je prekinuto.',
+};
+
+function getFriendlyError(error: string): string {
+  for (const [key, message] of Object.entries(friendlyErrorMessages)) {
+    if (error.toLowerCase().includes(key.toLowerCase())) {
+      return message;
+    }
+  }
+  return error;
+}
 
 interface ImageCardProps {
   image: ImageFile;
@@ -153,48 +174,51 @@ export function ImageCard({ image, onRemove, onRetry, onDownload }: ImageCardPro
 
           {/* Error Info */}
           {image.status === 'error' && image.error && (
-            <p className="mt-2 text-xs text-[var(--error)]">{image.error}</p>
+            <p className="mt-2 text-xs text-[var(--error)]">{getFriendlyError(image.error)}</p>
           )}
         </div>
 
         {/* Actions */}
         <div className="flex-shrink-0 flex items-center gap-1">
           {image.status === 'error' && (
-            <button
-              onClick={() => onRetry(image.id)}
-              className="btn-icon w-9 h-9 sm:w-10 sm:h-10 hover:text-[var(--accent)] hover:border-[var(--accent)]/30"
-              title="Pokušaj ponovo"
-              aria-label="Retry conversion"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </button>
+            <Tooltip content="Pokušaj ponovo konvertirati">
+              <button
+                onClick={() => onRetry(image.id)}
+                className="btn-icon w-9 h-9 sm:w-10 sm:h-10 hover:text-[var(--accent)] hover:border-[var(--accent)]/30"
+                aria-label="Ponovi konverziju"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+            </Tooltip>
           )}
 
           {image.status === 'completed' && (
-            <button
-              onClick={() => onDownload(image.id)}
-              className="btn-icon w-9 h-9 sm:w-10 sm:h-10 hover:text-[var(--success)] hover:border-[var(--success)]/30"
-              title="Preuzmi"
-              aria-label="Download converted image"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-            </button>
+            <Tooltip content="Preuzmi konvertiranu sliku">
+              <button
+                onClick={() => onDownload(image.id)}
+                className="btn-icon w-9 h-9 sm:w-10 sm:h-10 hover:text-[var(--success)] hover:border-[var(--success)]/30"
+                aria-label="Preuzmi konvertiranu sliku"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+              </button>
+            </Tooltip>
           )}
 
-          <button
-            onClick={() => onRemove(image.id)}
-            className="btn-icon w-9 h-9 sm:w-10 sm:h-10 hover:text-[var(--error)] hover:border-[var(--error)]/30"
-            title="Ukloni"
-            aria-label="Remove image"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <Tooltip content="Ukloni sliku iz liste">
+            <button
+              onClick={() => onRemove(image.id)}
+              className="btn-icon w-9 h-9 sm:w-10 sm:h-10 hover:text-[var(--error)] hover:border-[var(--error)]/30"
+              aria-label="Ukloni sliku"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </Tooltip>
         </div>
       </div>
     </div>

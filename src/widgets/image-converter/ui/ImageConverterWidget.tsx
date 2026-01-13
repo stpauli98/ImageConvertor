@@ -11,6 +11,9 @@ export function ImageConverterWidget() {
     images,
     settings,
     isProcessing,
+    isCancelling,
+    currentProcessingIndex,
+    totalToProcess,
     completedCount,
     totalOriginalSize,
     totalConvertedSize,
@@ -19,6 +22,7 @@ export function ImageConverterWidget() {
     clearAll,
     updateSettings,
     processImages,
+    cancelProcessing,
     retryImage,
     downloadImage,
     downloadAll,
@@ -128,7 +132,14 @@ export function ImageConverterWidget() {
               totalOriginalSize={totalOriginalSize}
               totalConvertedSize={totalConvertedSize}
               isProcessing={isProcessing}
+              isCancelling={isCancelling}
+              currentProcessingIndex={currentProcessingIndex}
+              totalToProcess={totalToProcess}
+              outputFormat={settings.outputFormat}
+              quality={settings.quality}
+              removeBackground={settings.removeBackground}
               onProcess={processImages}
+              onCancel={cancelProcessing}
               onDownloadAll={downloadAll}
             />
           </div>

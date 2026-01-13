@@ -3,6 +3,7 @@
 import { ConversionSettings, OUTPUT_FORMATS, BG_REMOVAL_QUALITIES, BG_REMOVAL_MODES } from '@/shared/types';
 import { formatBytes } from '@/shared/lib/formatBytes';
 import { estimateSavings } from '@/features/convert-image';
+import { Tooltip } from '@/shared/ui/Tooltip';
 
 interface ControlPanelProps {
   settings: ConversionSettings;
@@ -28,18 +29,23 @@ export function ControlPanel({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
-        Postavke
+        Postavke konverzije
       </h2>
 
       {/* Quality Slider */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-3">
-          <label
-            htmlFor="quality"
-            className="text-sm text-[var(--text-secondary)]"
-          >
-            Kvaliteta
-          </label>
+          <Tooltip content="Viša kvaliteta = veća datoteka, bolja oštrina slike. Niža kvaliteta = manja datoteka, vidljiva kompresija.">
+            <label
+              htmlFor="quality"
+              className="text-sm text-[var(--text-secondary)] cursor-help flex items-center gap-1"
+            >
+              Kvaliteta
+              <svg className="w-3.5 h-3.5 text-[var(--text-tertiary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </label>
+          </Tooltip>
           <span className="text-sm font-semibold text-[var(--accent)] font-mono">
             {settings.quality}%
           </span>
@@ -130,27 +136,32 @@ export function ControlPanel({
             </svg>
             Ukloni metapodatke
           </label>
-          <button
-            id="stripMetadata"
-            role="switch"
-            aria-checked={settings.stripMetadata}
-            onClick={() => onSettingsChange({ stripMetadata: !settings.stripMetadata })}
-            className={`
-              relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-200
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2
-              ${settings.stripMetadata
-                ? 'bg-[var(--accent)]'
-                : 'bg-[var(--border)]'
-              }
-            `}
-          >
-            <span
+          <div className="flex items-center gap-2">
+            <span className={`text-[10px] font-mono uppercase tracking-wider ${settings.stripMetadata ? 'text-[var(--accent)]' : 'text-[var(--text-tertiary)]'}`}>
+              {settings.stripMetadata ? 'UKLJ' : 'ISKLJ'}
+            </span>
+            <button
+              id="stripMetadata"
+              role="switch"
+              aria-checked={settings.stripMetadata}
+              onClick={() => onSettingsChange({ stripMetadata: !settings.stripMetadata })}
               className={`
-                inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-200
-                ${settings.stripMetadata ? 'translate-x-6' : 'translate-x-1'}
+                relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-200
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2
+                ${settings.stripMetadata
+                  ? 'bg-[var(--accent)]'
+                  : 'bg-[var(--border)]'
+                }
               `}
-            />
-          </button>
+            >
+              <span
+                className={`
+                  inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-200
+                  ${settings.stripMetadata ? 'translate-x-6' : 'translate-x-1'}
+                `}
+              />
+            </button>
+          </div>
         </div>
         <p className="mt-2 text-[10px] text-[var(--text-tertiary)]">
           Uklanja GPS lokaciju, info o kameri, datum snimanja...
@@ -169,27 +180,32 @@ export function ControlPanel({
             </svg>
             Ukloni pozadinu
           </label>
-          <button
-            id="removeBackground"
-            role="switch"
-            aria-checked={settings.removeBackground}
-            onClick={() => onSettingsChange({ removeBackground: !settings.removeBackground })}
-            className={`
-              relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-200
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2
-              ${settings.removeBackground
-                ? 'bg-[var(--accent)]'
-                : 'bg-[var(--border)]'
-              }
-            `}
-          >
-            <span
+          <div className="flex items-center gap-2">
+            <span className={`text-[10px] font-mono uppercase tracking-wider ${settings.removeBackground ? 'text-[var(--accent)]' : 'text-[var(--text-tertiary)]'}`}>
+              {settings.removeBackground ? 'UKLJ' : 'ISKLJ'}
+            </span>
+            <button
+              id="removeBackground"
+              role="switch"
+              aria-checked={settings.removeBackground}
+              onClick={() => onSettingsChange({ removeBackground: !settings.removeBackground })}
               className={`
-                inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-200
-                ${settings.removeBackground ? 'translate-x-6' : 'translate-x-1'}
+                relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-200
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2
+                ${settings.removeBackground
+                  ? 'bg-[var(--accent)]'
+                  : 'bg-[var(--border)]'
+                }
               `}
-            />
-          </button>
+            >
+              <span
+                className={`
+                  inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-200
+                  ${settings.removeBackground ? 'translate-x-6' : 'translate-x-1'}
+                `}
+              />
+            </button>
+          </div>
         </div>
         {settings.removeBackground && (
           <div className="mt-3 space-y-4 animate-slide-down">
@@ -388,29 +404,34 @@ export function ControlPanel({
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
             </svg>
-            Resize
+            Promjena veličine
           </label>
-          <button
-            id="enableResize"
-            role="switch"
-            aria-checked={settings.enableResize}
-            onClick={() => onSettingsChange({ enableResize: !settings.enableResize })}
-            className={`
-              relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-200
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2
-              ${settings.enableResize
-                ? 'bg-[var(--accent)]'
-                : 'bg-[var(--border)]'
-              }
-            `}
-          >
-            <span
+          <div className="flex items-center gap-2">
+            <span className={`text-[10px] font-mono uppercase tracking-wider ${settings.enableResize ? 'text-[var(--accent)]' : 'text-[var(--text-tertiary)]'}`}>
+              {settings.enableResize ? 'UKLJ' : 'ISKLJ'}
+            </span>
+            <button
+              id="enableResize"
+              role="switch"
+              aria-checked={settings.enableResize}
+              onClick={() => onSettingsChange({ enableResize: !settings.enableResize })}
               className={`
-                inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-200
-                ${settings.enableResize ? 'translate-x-6' : 'translate-x-1'}
+                relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-200
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2
+                ${settings.enableResize
+                  ? 'bg-[var(--accent)]'
+                  : 'bg-[var(--border)]'
+                }
               `}
-            />
-          </button>
+            >
+              <span
+                className={`
+                  inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-200
+                  ${settings.enableResize ? 'translate-x-6' : 'translate-x-1'}
+                `}
+              />
+            </button>
+          </div>
         </div>
 
         {settings.enableResize && (

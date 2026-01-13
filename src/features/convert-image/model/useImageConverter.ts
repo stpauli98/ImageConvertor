@@ -31,6 +31,9 @@ export function useImageConverter() {
     edgeBlur: 1,
   });
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [currentProcessingIndex, setCurrentProcessingIndex] = useState(0);
+  const [totalToProcess, setTotalToProcess] = useState(0);
   const processingRef = useRef(false);
   const abortRef = useRef(false);
 
@@ -116,10 +119,16 @@ export function useImageConverter() {
 
     processingRef.current = true;
     setIsProcessing(true);
+    setIsCancelling(false);
     abortRef.current = false;
+    setTotalToProcess(pendingImages.length);
+    setCurrentProcessingIndex(0);
 
-    for (const image of pendingImages) {
+    for (let i = 0; i < pendingImages.length; i++) {
       if (abortRef.current) break;
+
+      const image = pendingImages[i];
+      setCurrentProcessingIndex(i + 1);
 
       const startTime = Date.now();
       let lastProgress = 0;
@@ -196,7 +205,26 @@ export function useImageConverter() {
 
     processingRef.current = false;
     setIsProcessing(false);
+    setIsCancelling(false);
+    setCurrentProcessingIndex(0);
+    setTotalToProcess(0);
   }, [images, settings]);
+
+  const cancelProcessing = useCallback(() => {
+    if (!processingRef.current) return;
+
+    setIsCancelling(true);
+    abortRef.current = true;
+
+    // Reset any currently processing images back to pending
+    setImages((prev) =>
+      prev.map((img) =>
+        img.status === 'processing'
+          ? { ...img, status: 'pending', progress: 0, error: null, processingStartTime: null, estimatedTimeRemaining: null }
+          : img
+      )
+    );
+  }, []);
 
   const retryImage = useCallback(async (id: string) => {
     setImages((prev) =>
@@ -238,6 +266,9 @@ export function useImageConverter() {
     images,
     settings,
     isProcessing,
+    isCancelling,
+    currentProcessingIndex,
+    totalToProcess,
     completedCount,
     totalOriginalSize,
     totalConvertedSize,
@@ -246,6 +277,7 @@ export function useImageConverter() {
     clearAll,
     updateSettings,
     processImages,
+    cancelProcessing,
     retryImage,
     downloadImage,
     downloadAll,

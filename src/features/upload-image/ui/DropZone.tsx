@@ -2,6 +2,8 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { SUPPORTED_EXTENSIONS } from '@/shared/types';
+import { useToast } from '@/shared/ui/ToastProvider';
+import { Tooltip } from '@/shared/ui/Tooltip';
 
 interface DropZoneProps {
   onFilesAdded: (files: FileList | File[]) => Promise<{ error?: string }>;
@@ -11,8 +13,10 @@ interface DropZoneProps {
 export function DropZone({ onFilesAdded, disabled }: DropZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showAllFormats, setShowAllFormats] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragCounterRef = useRef(0);
+  const toast = useToast();
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -51,9 +55,11 @@ export function DropZone({ onFilesAdded, disabled }: DropZoneProps) {
       const result = await onFilesAdded(files);
       if (result.error) {
         setError(result.error);
+      } else {
+        toast.success(`Uspješno dodano ${files.length} ${files.length === 1 ? 'slika' : 'slika'}`);
       }
     }
-  }, [disabled, onFilesAdded]);
+  }, [disabled, onFilesAdded, toast]);
 
   const handleClick = useCallback(() => {
     if (!disabled) {
@@ -68,10 +74,12 @@ export function DropZone({ onFilesAdded, disabled }: DropZoneProps) {
       const result = await onFilesAdded(files);
       if (result.error) {
         setError(result.error);
+      } else {
+        toast.success(`Uspješno dodano ${files.length} ${files.length === 1 ? 'slika' : 'slika'}`);
       }
     }
     e.target.value = '';
-  }, [onFilesAdded]);
+  }, [onFilesAdded, toast]);
 
   const acceptFormats = SUPPORTED_EXTENSIONS.join(',');
 
@@ -101,7 +109,7 @@ export function DropZone({ onFilesAdded, disabled }: DropZoneProps) {
             handleClick();
           }
         }}
-        aria-label="Drop zone for uploading images"
+        aria-label="Zona za postavljanje slika"
         aria-disabled={disabled}
       >
         {/* Background with border */}
@@ -195,7 +203,7 @@ export function DropZone({ onFilesAdded, disabled }: DropZoneProps) {
           </h3>
 
           <p className="text-sm text-[var(--text-secondary)] mb-6 text-center">
-            ili kliknite za odabir fajlova
+            ili kliknite za odabir datoteka
           </p>
 
           {/* CTA Button */}
@@ -224,21 +232,36 @@ export function DropZone({ onFilesAdded, disabled }: DropZoneProps) {
 
           {/* Format info */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-            <span className="badge bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]">
-              JPG
-            </span>
-            <span className="badge bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]">
-              PNG
-            </span>
-            <span className="badge bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]">
-              HEIC
-            </span>
-            <span className="badge bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]">
-              GIF
-            </span>
-            <span className="badge bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]">
-              +5
-            </span>
+            <span className="badge bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]">JPG</span>
+            <span className="badge bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]">PNG</span>
+            <span className="badge bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]">HEIC</span>
+            <span className="badge bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]">GIF</span>
+            {showAllFormats ? (
+              <>
+                <span className="badge bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]">WEBP</span>
+                <span className="badge bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]">BMP</span>
+                <span className="badge bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]">TIFF</span>
+                <span className="badge bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]">SVG</span>
+                <span className="badge bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]">AVIF</span>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setShowAllFormats(false); }}
+                  className="badge bg-[var(--bg-tertiary)] text-[var(--accent)] hover:bg-[var(--accent-muted)] transition-colors cursor-pointer"
+                >
+                  Manje
+                </button>
+              </>
+            ) : (
+              <Tooltip content="WEBP, BMP, TIFF, SVG, AVIF">
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setShowAllFormats(true); }}
+                  className="badge bg-[var(--bg-tertiary)] text-[var(--accent)] hover:bg-[var(--accent-muted)] transition-colors cursor-pointer"
+                >
+                  +5 formata
+                </button>
+              </Tooltip>
+            )}
           </div>
 
           <p className="mt-4 text-xs text-[var(--text-tertiary)] text-center font-mono">
