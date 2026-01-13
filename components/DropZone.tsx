@@ -12,11 +12,13 @@ export function DropZone({ onFilesAdded, disabled }: DropZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dragCounterRef = useRef(0);
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!disabled) {
+    dragCounterRef.current++;
+    if (!disabled && e.dataTransfer.items.length > 0) {
       setIsDragging(true);
     }
   }, [disabled]);
@@ -24,7 +26,10 @@ export function DropZone({ onFilesAdded, disabled }: DropZoneProps) {
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsDragging(false);
+    dragCounterRef.current--;
+    if (dragCounterRef.current === 0) {
+      setIsDragging(false);
+    }
   }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -36,6 +41,7 @@ export function DropZone({ onFilesAdded, disabled }: DropZoneProps) {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
+    dragCounterRef.current = 0;
     setError(null);
 
     if (disabled) return;
@@ -64,7 +70,6 @@ export function DropZone({ onFilesAdded, disabled }: DropZoneProps) {
         setError(result.error);
       }
     }
-    // Reset input so same file can be selected again
     e.target.value = '';
   }, [onFilesAdded]);
 
@@ -79,13 +84,13 @@ export function DropZone({ onFilesAdded, disabled }: DropZoneProps) {
         onDrop={handleDrop}
         onClick={handleClick}
         className={`
-          relative border-2 border-dashed rounded-xl p-8 md:p-12 text-center cursor-pointer
+          relative overflow-hidden rounded-2xl cursor-pointer
           transition-all duration-300 ease-out
           ${disabled
-            ? 'border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800/50 cursor-not-allowed opacity-60'
+            ? 'opacity-50 cursor-not-allowed'
             : isDragging
-              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 scale-[1.02] shadow-lg shadow-blue-500/20'
-              : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/30 hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/10'
+              ? 'scale-[1.01]'
+              : 'hover:scale-[1.005]'
           }
         `}
         role="button"
@@ -99,6 +104,20 @@ export function DropZone({ onFilesAdded, disabled }: DropZoneProps) {
         aria-label="Drop zone for uploading images"
         aria-disabled={disabled}
       >
+        {/* Background with border */}
+        <div className={`
+          absolute inset-0 rounded-2xl border-2 border-dashed transition-all duration-300
+          ${isDragging
+            ? 'border-[var(--accent)] bg-[var(--accent-muted)]'
+            : 'border-[var(--border)] bg-[var(--bg-secondary)] hover:border-[var(--border-hover)]'
+          }
+        `} />
+
+        {/* Animated glow on drag */}
+        {isDragging && (
+          <div className="absolute inset-0 rounded-2xl animate-pulse-glow opacity-50" />
+        )}
+
         <input
           ref={fileInputRef}
           type="file"
@@ -110,55 +129,81 @@ export function DropZone({ onFilesAdded, disabled }: DropZoneProps) {
           aria-hidden="true"
         />
 
-        <div className={`transition-transform duration-300 ${isDragging ? 'scale-110' : ''}`}>
-          <div className="mx-auto w-16 h-16 mb-4">
-            {isDragging ? (
-              <svg
-                className="w-full h-full text-blue-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3-3m0 0l3 3m-3-3v12"
-                />
-              </svg>
-            ) : (
-              <svg
-                className="w-full h-full text-gray-400 dark:text-gray-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
+        {/* Content */}
+        <div className={`
+          relative z-10 flex flex-col items-center justify-center
+          px-6 py-12 sm:py-16 md:py-20
+          transition-transform duration-300
+          ${isDragging ? 'scale-105' : ''}
+        `}>
+          {/* Icon */}
+          <div className={`
+            relative mb-6 transition-all duration-300
+            ${isDragging ? 'animate-float' : ''}
+          `}>
+            <div className={`
+              w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center
+              transition-all duration-300
+              ${isDragging
+                ? 'bg-[var(--accent)] shadow-lg'
+                : 'bg-[var(--bg-tertiary)]'
+              }
+            `}>
+              {isDragging ? (
+                <svg
+                  className="w-8 h-8 sm:w-10 sm:h-10 text-[var(--text-inverse)]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="w-8 h-8 sm:w-10 sm:h-10 text-[var(--text-tertiary)]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+              )}
+            </div>
+
+            {/* Decorative ring */}
+            {isDragging && (
+              <div className="absolute -inset-2 rounded-2xl border-2 border-[var(--accent)] opacity-30 animate-ping" />
             )}
           </div>
 
-          <p className="text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
+          {/* Text */}
+          <h3 className={`
+            text-lg sm:text-xl font-semibold mb-2 text-center transition-colors duration-300
+            ${isDragging ? 'text-[var(--accent)]' : 'text-[var(--text-primary)]'}
+          `}>
             {isDragging ? 'Pustite slike ovdje' : 'Prevucite slike ovdje'}
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            ili kliknite za odabir
+          </h3>
+
+          <p className="text-sm text-[var(--text-secondary)] mb-6 text-center">
+            ili kliknite za odabir fajlova
           </p>
 
+          {/* CTA Button */}
           <button
             type="button"
             className={`
-              inline-flex items-center px-4 py-2 rounded-lg font-medium text-sm
-              transition-colors duration-200
-              ${disabled
-                ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900'
-              }
+              btn btn-primary text-sm sm:text-base
+              ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
             `}
             disabled={disabled}
             onClick={(e) => {
@@ -166,40 +211,52 @@ export function DropZone({ onFilesAdded, disabled }: DropZoneProps) {
               handleClick();
             }}
           >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                d="M12 4v16m8-8H4"
               />
             </svg>
-            Browse files
+            Odaberi slike
           </button>
 
-          <p className="mt-4 text-xs text-gray-400 dark:text-gray-500">
-            JPG, PNG, GIF, BMP, TIFF, HEIC, AVIF, SVG, ICO • Max 50 slika • Max 25MB po slici
+          {/* Format info */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+            <span className="badge bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]">
+              JPG
+            </span>
+            <span className="badge bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]">
+              PNG
+            </span>
+            <span className="badge bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]">
+              HEIC
+            </span>
+            <span className="badge bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]">
+              GIF
+            </span>
+            <span className="badge bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]">
+              +5
+            </span>
+          </div>
+
+          <p className="mt-4 text-xs text-[var(--text-tertiary)] text-center font-mono">
+            Max 50 slika • Max 25MB po slici
           </p>
         </div>
       </div>
 
+      {/* Error message */}
       {error && (
-        <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <div className="flex items-start">
-            <svg
-              className="w-5 h-5 text-red-500 mt-0.5 mr-2 flex-shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <p className="text-sm text-red-600 dark:text-red-400 whitespace-pre-line">{error}</p>
+        <div className="mt-4 p-4 rounded-xl bg-[var(--error-muted)] border border-[var(--error)]/20 animate-slide-up">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-[var(--error)] flex items-center justify-center">
+              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <p className="text-sm text-[var(--error)] whitespace-pre-line">{error}</p>
           </div>
         </div>
       )}

@@ -1,27 +1,39 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { JetBrains_Mono, Outfit } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const outfit = Outfit({
+  variable: "--font-display",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
-  title: "WebP Konvertor - Bulk konverzija slika",
-  description: "Besplatna online konverzija slika u WebP format. Bulk upload, kompresija i resize. Potpuno client-side, bez uploada na server.",
-  keywords: ["webp", "konverzija", "slike", "kompresija", "resize", "bulk", "online"],
-  authors: [{ name: "WebP Konvertor" }],
+  title: "WEBP.CONVERT — Bulk Image Optimizer",
+  description: "Lightning-fast WebP conversion. 100% client-side. Your images never leave your device.",
+  keywords: ["webp", "converter", "image", "compression", "optimizer", "bulk", "privacy"],
+  authors: [{ name: "WEBP.CONVERT" }],
   openGraph: {
-    title: "WebP Konvertor - Bulk konverzija slika",
-    description: "Besplatna online konverzija slika u WebP format",
+    title: "WEBP.CONVERT — Bulk Image Optimizer",
+    description: "Lightning-fast WebP conversion. 100% client-side.",
     type: "website",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fafafa" },
+    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
+  ],
 };
 
 export default function RootLayout({
@@ -32,7 +44,7 @@ export default function RootLayout({
   return (
     <html lang="hr" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-gray-50 dark:bg-gray-900`}
+        className={`${outfit.variable} ${jetbrainsMono.variable} antialiased`}
       >
         {children}
       </body>

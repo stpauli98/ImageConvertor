@@ -20,47 +20,51 @@ export function ImageCard({ image, onRemove, onRetry, onDownload }: ImageCardPro
     switch (image.status) {
       case 'pending':
         return (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-            <span className="w-1.5 h-1.5 rounded-full bg-gray-400 mr-1.5" />
-            Na čekanju
+          <span className="badge bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" />
+            ČEKA
           </span>
         );
       case 'processing':
         return (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
-            <svg className="w-3 h-3 mr-1.5 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          <span className="badge bg-[var(--accent-muted)] text-[var(--accent)]">
+            <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            Procesiranje
+            PROCESIRA
           </span>
         );
       case 'completed':
         return (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400">
-            <svg className="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          <span className="badge bg-[var(--success-muted)] text-[var(--success)]">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
             </svg>
-            Završeno
+            GOTOVO
           </span>
         );
       case 'error':
         return (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
-            <svg className="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <span className="badge bg-[var(--error-muted)] text-[var(--error)]">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
             </svg>
-            Greška
+            GREŠKA
           </span>
         );
     }
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 transition-all duration-200 hover:shadow-md">
-      <div className="flex items-start gap-4">
+    <div className={`
+      card p-3 sm:p-4 animate-slide-up
+      ${image.status === 'completed' ? 'hover:border-[var(--success)]/30' : ''}
+      ${image.status === 'error' ? 'border-[var(--error)]/30' : ''}
+    `}>
+      <div className="flex items-start gap-3 sm:gap-4">
         {/* Thumbnail */}
-        <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
+        <div className="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden bg-[var(--bg-tertiary)] relative">
           {image.thumbnail ? (
             <img
               src={image.thumbnail}
@@ -69,76 +73,86 @@ export function ImageCard({ image, onRemove, onRetry, onDownload }: ImageCardPro
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-[var(--text-tertiary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
+            </div>
+          )}
+
+          {/* Processing overlay */}
+          {image.status === 'processing' && (
+            <div className="absolute inset-0 bg-[var(--bg-primary)]/60 flex items-center justify-center">
+              <div className="w-6 h-6 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
             </div>
           )}
         </div>
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between mb-2">
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-gray-900 dark:text-white truncate" title={image.name}>
-                {truncateFileName(image.name)}
+          <div className="flex items-start justify-between gap-2 mb-1.5">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-[var(--text-primary)] truncate" title={image.name}>
+                {truncateFileName(image.name, 20)}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              <p className="text-xs text-[var(--text-tertiary)] font-mono mt-0.5">
                 {formatBytes(image.originalSize)}
                 {image.originalWidth && image.originalHeight && (
-                  <> • {image.originalWidth}×{image.originalHeight}px</>
+                  <span className="hidden sm:inline"> • {image.originalWidth}×{image.originalHeight}</span>
                 )}
               </p>
             </div>
-            {getStatusBadge()}
+            <div className="flex-shrink-0">
+              {getStatusBadge()}
+            </div>
           </div>
 
           {/* Progress Bar */}
           {image.status === 'processing' && (
-            <div className="mb-2">
-              <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div className="mt-2">
+              <div className="progress-bar">
                 <div
-                  className="h-full bg-blue-500 rounded-full transition-all duration-300 ease-out"
+                  className="progress-bar-fill"
                   style={{ width: `${image.progress}%` }}
                 />
               </div>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{image.progress}%</p>
+              <p className="text-[10px] text-[var(--text-tertiary)] font-mono mt-1">{image.progress}%</p>
             </div>
           )}
 
           {/* Completed Info */}
           {image.status === 'completed' && savings && (
-            <div className="flex items-center gap-4 text-xs">
-              <div className="flex items-center text-gray-500 dark:text-gray-400">
-                <span className="font-medium text-gray-700 dark:text-gray-200">
-                  {formatBytes(image.convertedSize!)}
-                </span>
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="text-xs text-[var(--text-secondary)] font-mono">
+                → {formatBytes(image.convertedSize!)}
                 {image.newWidth && image.newHeight && (
-                  <span className="ml-1">• {image.newWidth}×{image.newHeight}px</span>
+                  <span className="hidden sm:inline"> • {image.newWidth}×{image.newHeight}</span>
                 )}
-              </div>
-              <div className={`font-medium ${savings.savedPercentage > 0 ? 'text-green-600 dark:text-green-400' : 'text-orange-500 dark:text-orange-400'}`}>
+              </span>
+              <span className={`
+                text-xs font-semibold font-mono
+                ${savings.savedPercentage > 0 ? 'text-[var(--success)]' : 'text-[var(--warning)]'}
+              `}>
                 {savings.savedPercentage > 0 ? (
-                  <>Ušteđeno: {savings.formattedSavedBytes} ({savings.savedPercentage}%)</>
+                  <>−{savings.savedPercentage}%</>
                 ) : (
-                  <>Povećano: {savings.formattedSavedBytes}</>
+                  <>+{Math.abs(savings.savedPercentage)}%</>
                 )}
-              </div>
+              </span>
             </div>
           )}
 
           {/* Error Info */}
           {image.status === 'error' && image.error && (
-            <p className="text-xs text-red-500 dark:text-red-400 mt-1">{image.error}</p>
+            <p className="mt-2 text-xs text-[var(--error)]">{image.error}</p>
           )}
         </div>
 
         {/* Actions */}
-        <div className="flex-shrink-0 flex items-center gap-2">
+        <div className="flex-shrink-0 flex items-center gap-1">
           {image.status === 'error' && (
             <button
               onClick={() => onRetry(image.id)}
-              className="p-2 rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+              className="btn-icon w-9 h-9 sm:w-10 sm:h-10 hover:text-[var(--accent)] hover:border-[var(--accent)]/30"
               title="Pokušaj ponovo"
               aria-label="Retry conversion"
             >
@@ -151,7 +165,7 @@ export function ImageCard({ image, onRemove, onRetry, onDownload }: ImageCardPro
           {image.status === 'completed' && (
             <button
               onClick={() => onDownload(image.id)}
-              className="p-2 rounded-lg text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+              className="btn-icon w-9 h-9 sm:w-10 sm:h-10 hover:text-[var(--success)] hover:border-[var(--success)]/30"
               title="Preuzmi"
               aria-label="Download converted image"
             >
@@ -163,7 +177,7 @@ export function ImageCard({ image, onRemove, onRetry, onDownload }: ImageCardPro
 
           <button
             onClick={() => onRemove(image.id)}
-            className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+            className="btn-icon w-9 h-9 sm:w-10 sm:h-10 hover:text-[var(--error)] hover:border-[var(--error)]/30"
             title="Ukloni"
             aria-label="Remove image"
           >

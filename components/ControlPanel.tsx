@@ -22,21 +22,25 @@ export function ControlPanel({
     : 0;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-        Postavke konverzije
+    <div className="card p-5 sm:p-6">
+      <h2 className="text-base font-semibold text-[var(--text-primary)] mb-5 flex items-center gap-2">
+        <svg className="w-5 h-5 text-[var(--text-tertiary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        Postavke
       </h2>
 
       {/* Quality Slider */}
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-3">
           <label
             htmlFor="quality"
-            className="text-sm font-medium text-gray-700 dark:text-gray-200"
+            className="text-sm text-[var(--text-secondary)]"
           >
-            Kvaliteta kompresije
+            Kvaliteta
           </label>
-          <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+          <span className="text-sm font-semibold text-[var(--accent)] font-mono">
             {settings.quality}%
           </span>
         </div>
@@ -48,32 +52,40 @@ export function ControlPanel({
           max="100"
           value={settings.quality}
           onChange={(e) => onSettingsChange({ quality: Number(e.target.value) })}
-          className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
+          className="w-full"
         />
 
-        <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-1">
+        <div className="flex justify-between text-[10px] text-[var(--text-tertiary)] mt-2 font-mono uppercase tracking-wider">
           <span>Manja veličina</span>
           <span>Veća kvaliteta</span>
         </div>
 
         {hasImages && estimatedSavings > 0 && (
-          <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-100 dark:border-green-900/30">
-            <p className="text-sm text-green-700 dark:text-green-400">
-              <span className="font-medium">Procijenjena ušteda:</span>{' '}
-              ~{formatBytes(estimatedSavings)}
-            </p>
+          <div className="mt-4 p-3 rounded-xl bg-[var(--success-muted)] border border-[var(--success)]/20">
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-[var(--success)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+              <p className="text-sm text-[var(--success)]">
+                <span className="font-medium">Procijenjena ušteda:</span>{' '}
+                <span className="font-mono">~{formatBytes(estimatedSavings)}</span>
+              </p>
+            </div>
           </div>
         )}
       </div>
 
       {/* Resize Options */}
-      <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+      <div className="border-t border-[var(--border)] pt-5">
         <div className="flex items-center justify-between mb-4">
           <label
             htmlFor="enableResize"
-            className="text-sm font-medium text-gray-700 dark:text-gray-200"
+            className="text-sm text-[var(--text-secondary)] flex items-center gap-2"
           >
-            Promijeni veličinu
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
+            Resize
           </label>
           <button
             id="enableResize"
@@ -81,14 +93,17 @@ export function ControlPanel({
             aria-checked={settings.enableResize}
             onClick={() => onSettingsChange({ enableResize: !settings.enableResize })}
             className={`
-              relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200
-              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800
-              ${settings.enableResize ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'}
+              relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-200
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2
+              ${settings.enableResize
+                ? 'bg-[var(--accent)]'
+                : 'bg-[var(--border)]'
+              }
             `}
           >
             <span
               className={`
-                inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200
+                inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-200
                 ${settings.enableResize ? 'translate-x-6' : 'translate-x-1'}
               `}
             />
@@ -96,44 +111,57 @@ export function ControlPanel({
         </div>
 
         {settings.enableResize && (
-          <div className="space-y-4 animate-in slide-in-from-top-2 duration-200">
-            <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4 animate-slide-down">
+            <div className="grid grid-cols-2 gap-3">
               <div>
                 <label
                   htmlFor="maxWidth"
-                  className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+                  className="block text-[10px] font-medium text-[var(--text-tertiary)] mb-1.5 uppercase tracking-wider"
                 >
-                  Max širina (px)
+                  Max širina
                 </label>
-                <input
-                  type="number"
-                  id="maxWidth"
-                  min="1"
-                  max="10000"
-                  value={settings.maxWidth}
-                  onChange={(e) => onSettingsChange({ maxWidth: Number(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+                <div className="relative">
+                  <input
+                    type="number"
+                    id="maxWidth"
+                    min="1"
+                    max="10000"
+                    value={settings.maxWidth}
+                    onChange={(e) => onSettingsChange({ maxWidth: Number(e.target.value) || 0 })}
+                    className="w-full px-3 py-2.5 text-sm font-mono border border-[var(--border)] rounded-lg bg-[var(--bg-primary)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-colors"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[var(--text-tertiary)] font-mono">
+                    px
+                  </span>
+                </div>
               </div>
               <div>
                 <label
                   htmlFor="maxHeight"
-                  className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+                  className="block text-[10px] font-medium text-[var(--text-tertiary)] mb-1.5 uppercase tracking-wider"
                 >
-                  Max visina (px)
+                  Max visina
                 </label>
-                <input
-                  type="number"
-                  id="maxHeight"
-                  min="1"
-                  max="10000"
-                  value={settings.maxHeight}
-                  onChange={(e) => onSettingsChange({ maxHeight: Number(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+                <div className="relative">
+                  <input
+                    type="number"
+                    id="maxHeight"
+                    min="1"
+                    max="10000"
+                    value={settings.maxHeight}
+                    onChange={(e) => onSettingsChange({ maxHeight: Number(e.target.value) || 0 })}
+                    className="w-full px-3 py-2.5 text-sm font-mono border border-[var(--border)] rounded-lg bg-[var(--bg-primary)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-colors"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[var(--text-tertiary)] font-mono">
+                    px
+                  </span>
+                </div>
               </div>
             </div>
-            <p className="text-xs text-gray-400 dark:text-gray-500">
+            <p className="text-[10px] text-[var(--text-tertiary)] flex items-center gap-1.5">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
               Aspect ratio će biti automatski očuvan
             </p>
           </div>
