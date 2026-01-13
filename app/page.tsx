@@ -1,13 +1,9 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { ThemeToggle, DropZone, ImageList, ControlPanel, DownloadSection, UpgradeModal, UsageBadge } from '@/components';
+import { ThemeToggle, DropZone, ImageList, ControlPanel, DownloadSection } from '@/components';
 import { useImageConverter } from '@/hooks/useImageConverter';
-import { useUsageTracking } from '@/hooks/useUsageTracking';
 
 export default function Home() {
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-
   const {
     images,
     settings,
@@ -24,33 +20,6 @@ export default function Home() {
     downloadImage,
     downloadAll,
   } = useImageConverter();
-
-  const {
-    remainingToday,
-    isPremium,
-    canConvert,
-    isLoaded,
-    recordConversion,
-    checkCanConvert,
-    activatePremium,
-    dailyLimit,
-  } = useUsageTracking();
-
-  // Wrapper for processImages that checks usage limits
-  const handleProcessImages = useCallback(async () => {
-    const pendingCount = images.filter(img => img.status === 'pending').length;
-
-    if (!checkCanConvert(pendingCount)) {
-      setShowUpgradeModal(true);
-      return;
-    }
-
-    // Record the conversions
-    recordConversion(pendingCount);
-
-    // Process the images
-    await processImages();
-  }, [images, checkCanConvert, recordConversion, processImages]);
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg-primary)]">
@@ -73,17 +42,7 @@ export default function Home() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2 sm:gap-3">
-              {isLoaded && (
-                <UsageBadge
-                  remainingToday={remainingToday}
-                  dailyLimit={dailyLimit}
-                  isPremium={isPremium}
-                  onClick={() => setShowUpgradeModal(true)}
-                />
-              )}
-              <ThemeToggle />
-            </div>
+            <ThemeToggle />
           </div>
         </div>
       </header>
@@ -180,11 +139,8 @@ export default function Home() {
                 totalOriginalSize={totalOriginalSize}
                 totalConvertedSize={totalConvertedSize}
                 isProcessing={isProcessing}
-                onProcess={handleProcessImages}
+                onProcess={processImages}
                 onDownloadAll={downloadAll}
-                canConvert={canConvert}
-                remainingToday={remainingToday}
-                isPremium={isPremium}
               />
             </div>
           </div>
@@ -229,15 +185,6 @@ export default function Home() {
           </div>
         </div>
       </footer>
-
-      {/* Upgrade Modal */}
-      <UpgradeModal
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        onActivate={activatePremium}
-        remainingToday={remainingToday}
-        dailyLimit={dailyLimit}
-      />
     </div>
   );
 }
